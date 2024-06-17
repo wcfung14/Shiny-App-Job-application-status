@@ -1,0 +1,152 @@
+---
+title: "Index"
+author: "Cody"
+output: html_document
+params:
+  data: "mtcars"
+  department: "taxonomy department"
+---
+
+This is a report of ``r params$data`` dataset made for ``r params$department``.
+
+Loading dataset
+```{r, include=FALSE}
+
+STRING <- "THIS IS A STRING"
+
+library(viridis)
+```
+
+$E = mc^{2}$
+$CO_{2}$
+
+<!-- plotting -->
+<!-- ```{r} -->
+<!-- library(ggplot2) -->
+<!-- p <- ggplot(data = db, aes(x=Research)) + geom_bar() -->
+<!-- p -->
+<!-- ``` -->
+
+## `r STRING`
+
+plot
+```{r, fig.cap="this is some caption"}
+
+image(volcano, col = viridis(200))
+
+dataset <- get(data(list = params$data))
+head(dataset)
+knitr::kable(head(dataset))
+
+
+```
+
+
+
+```{r, include = FALSE}
+{
+  # FILE <- "C:/Users/wcf/Desktop/Personal/CV/Job application records.xlsx"
+  # df <- readxl::read_xlsx(FILE, sheet = "Records")
+  FILE <- "./Shiny App - Job application status/Job application records_20240616.xlsm"
+  df <- readxl::read_excel(FILE, sheet = "Records")
+  
+  COLUMNS_TO_BE_USED <- c("Phone chat", "Interview 1st")
+  func <- function(x) {ifelse(!is.na(x), 1, 0)} # Convert value in columns "Phone chat" and "Interview 1st" to TRUE/FALSE
+  df[COLUMNS_TO_BE_USED] <- lapply(df[COLUMNS_TO_BE_USED], func)
+  
+  # df_short <- df[c("Job Board", COLUMNS_TO_BE_USED)]
+  # df_short$concat <- do.call(paste, c(df_short, sep = "_"))
+  # data.frame(table(df_short$concat))
+  
+  df_freq <- data.frame(table(df[c("Job Board", COLUMNS_TO_BE_USED, "Status")]))
+  df_freq_trimmed <- df_freq[df_freq$Freq!=0, ]
+  
+  nrow(df) == sum(df_freq_trimmed$Freq)
+  # END
+}
+```
+
+``` {r}
+knitr::kable(head(df))
+```
+
+``` {r, include = FALSE}
+# Formatting data, converting data into text readable by humans
+  {
+    df_freq_trimmed["Phone.chat"] <- lapply(df_freq_trimmed["Phone.chat"], function(x) {ifelse(x == 1, "Phone chat", "No phone chat")})
+    df_freq_trimmed$Interview.1st <- ifelse(df_freq_trimmed$Interview.1st == 1, "Interview", "No interview")
+    df_freq_trimmed$Job.Board <- as.character(df_freq_trimmed$Job.Board)
+    df_freq_trimmed$Status <- as.character(df_freq_trimmed$Status)
+  }
+  
+  # Convert dataframe into network data
+  # For each row in dataframe, make a list, if the length of list > 3, extract data from position 1, 2 and last, push into temp list, repeat until length of list < 3, continue on next row until dataframe runs out.
+  # Return a dataframe from the temp list, with 3 columns: Source, target, freq
+  convert_df_to_network <- function(df) {
+    for (i in 1:nrow(df)) {
+      if (i == 1) {listOfLists <- vector(mode = "list"); message("new list of listsss made!")}
+      
+      # grepl(pattern = "No ", x = df[i, 2]) & grepl(pattern = "No ", x = df[i, 3])
+      a <- as.list(df[i, ])
+      b <- a[!grepl("No ", a)]
+      
+      while (length(b) >= 3) {
+        listOfLists[[length(listOfLists) + 1]] <- c((b[1:2]), (b[length(b)]))
+        
+        b <- b[-1]
+        
+        print(b)
+      }
+    }
+    res <- data.frame(do.call(rbind, listOfLists))
+    colnames(res) <- c("Source", "Target", "Freq")
+    return(res)
+  }
+  
+  df_freq_trimmed_long <- convert_df_to_network(df_freq_trimmed)
+  
+  # Format data, make list of unique nodes, lists of IDs of Source and Target required for plotting with networkD3::sankeyNetwork
+  {
+    # Create list of unique nodes
+    df_nodes <- data.frame(name = unique(unlist(c(df_freq_trimmed_long[, 1], df_freq_trimmed_long[, 2]))))
+    
+    # Coerce Freq into numeric
+    df_freq_trimmed_long$Freq <- as.numeric(df_freq_trimmed_long$Freq) 
+    # using do.call(rbind, listOfLists) do not coerce Freq into numeric
+    # Will throw the following error if Freq is a list type
+    # Error in if (length(nms) != n || any(nms == "")) stop("'options' must be a fully named list, or have no names (NULL)") : missing value where TRUE/FALSE needed
+    
+    df_freq_trimmed_long$IDsource <- match(df_freq_trimmed_long$Source, df_nodes$name) - 1
+    df_freq_trimmed_long$IDtarget <- match(df_freq_trimmed_long$Target, df_nodes$name) - 1
+    
+    df_freq_trimmed_long_short <- as.data.frame(cbind(df_freq_trimmed_long[4:5], df_freq_trimmed_long[3]), row.name = NULL)
+    # df_freq_trimmed_long_short <- df_freq_trimmed_long_short[order(df_freq_trimmed_long_short$IDsource), ] # make no difference to the graph
+  }
+```
+
+``` {r}
+p <- networkD3::sankeyNetwork(Links = df_freq_trimmed_long_short, Nodes = df_nodes, 
+                             Source = "IDsource", Target = "IDtarget", 
+                             Value = "Freq", NodeID = "name", 
+                             fontFamily = "sans-serif", fontSize = 20, nodeWidth = 20, sinksRight = FALSE, width = 1000)
+    p
+```
+
+
+
+<!-- rmarkdown::render(file.path("C:/Users/wcf/Desktop/Coding/R/rmd.Rmd")) -->
+
+<!-- ## bash -->
+<!-- ```{bash, engine.opts="-1"} -->
+<!-- pwd -->
+<!-- ``` -->
+
+<!-- ## Py -->
+<!-- ```{python} -->
+<!-- x = "Hello World!" -->
+<!-- if True: -->
+<!--   print(x.split(' ')) -->
+<!-- else: -->
+<!--   print("No") -->
+<!-- ``` -->
+

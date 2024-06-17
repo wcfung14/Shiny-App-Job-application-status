@@ -1,0 +1,12 @@
+name: "My website"
+navbar:
+  title: "My awesome website"
+  left: 
+    - text: "Home"
+      href: index.html
+    - text: "Shiny App - Job Application status"
+      href: https://iul8p5-cody-wong.shinyapps.io/shiny_app_-_job_application_status/
+    - text: "Linkedin"
+      href: https://www.linkedin.com/in/wcfung14/
+    - text: "Click me"
+      href: https://www.youtube.com/watch?v=dQw4w9WgXcQ&pp=ygUIcmlja3JvbGw%3D

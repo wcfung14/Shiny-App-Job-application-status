@@ -1,0 +1,10 @@
+name: job_application_status_shiny
+title:
+username: iul8p5-cody-wong
+account: iul8p5-cody-wong
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 12191149
+bundleId: 8750351
+url: https://iul8p5-cody-wong.shinyapps.io/job_application_status_shiny/
+version: 1

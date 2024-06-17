@@ -1,0 +1,12 @@
+name: shiny
+title: shiny
+username: iul8p5-cody-wong
+account: iul8p5-cody-wong
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 12190875
+bundleId: 8750079
+url: https://iul8p5-cody-wong.shinyapps.io/shiny/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
